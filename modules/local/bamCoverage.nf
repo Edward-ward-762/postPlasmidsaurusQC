@@ -1,10 +1,6 @@
 #!/usr/bin/env nextflow
 
-params.bamPath='bamPath_local_placeholder'
-
 process bamCoverage {
-    
-    publishDir 'output', mode: 'copy'
 
     input: 
         path bamPath

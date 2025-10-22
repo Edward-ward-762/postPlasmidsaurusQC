@@ -1,10 +1,6 @@
 #!/usr/bin/env nextflow
 
-params.readsPath='reads_local_placeholder'
-
 process readsCount {
-    
-    publishDir 'output', mode: 'copy'
 
     input: 
         path readsPath

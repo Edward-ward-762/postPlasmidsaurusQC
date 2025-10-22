@@ -1,13 +1,6 @@
 #!/usr/bin/env nextflow
 
-params.genomePath='genome_local_placeholder'
-params.readsPath='reads_local_placeholder'
-params.genomeName='genomeName_local_placeholder'
-
 process mapReads {
-	maxForks 3
-
-    publishDir 'output', mode: 'copy'
 
 	input:
 		path genomePath
