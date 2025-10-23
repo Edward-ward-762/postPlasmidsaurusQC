@@ -19,6 +19,14 @@ include { collectReadCounts } from './modules/local/collectReadCounts.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT NF-CORE MODULES
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+include { MINIMAP2_ALIGN } from './modules/nf-core/minimap2/align/main.nf'
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
@@ -89,11 +97,24 @@ workflow{
     // MODULE: map fq reads to genome
     //
 
+    MINIMAP2_ALIGN(
+        ch_data.map{ meta, fq -> [meta, fq] },
+        ch_data.map{ meta, fq -> [meta, meta.genome_path] },
+        true,
+        false,
+        false,
+        false
+    )
+    ch_gen_bam = MINIMAP2_ALIGN.out.bam
+    ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions)
+
+    /*
     mapReads(
         ch_data.map{ meta, fq -> [meta, fq] },
         ch_data.map{ meta, fq -> meta.genome_path }
     )
     ch_gen_bam = mapReads.out.bam
+    */
 
     //
     // MODULE: index genome mapped fqs

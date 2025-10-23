@@ -1,6 +1,8 @@
 #!/usr/bin/env nextflow
 
 process readsCount {
+    tag "$meta.id"
+    label 'process_low'
 
     input: 
         path readsPath
