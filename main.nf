@@ -11,9 +11,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { bamCoverage       } from './modules/local/bamCoverage.nf'
-include { readsCount        } from './modules/local/readsCount.nf'
-include { collectReadCounts } from './modules/local/collectReadCounts.nf'
+include { readsCount             } from './modules/local/readsCount.nf'
+include { collectReadCounts      } from './modules/local/collectReadCounts.nf'
+include { DUMP_SOFTWARE_VERSIONS } from './modules/local/dump_software_versions.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -149,13 +149,22 @@ workflow{
     )
     ch_versions = ch_versions.mix(DEEPTOOLS_BAMCOVERAGE.out.versions)
 
+    //
+    // ****************************
+    //
+    // SECTION: software version reporting
+    //
+    // ****************************
+    //
 
-    /*
-    bamCoverage(
-        ch_gen_bam_bai.map{ meta, bam, bai -> [meta, bam, bai] }
+    //
+    // MODULE: Collect software versions
+    //
+
+    DUMP_SOFTWARE_VERSIONS (
+        ch_versions.unique().collectFile()
     )
-    */
-
+    
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     END
