@@ -11,9 +11,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { samIndex } from './modules/local/samIndex.nf'
-include { bamCoverage } from './modules/local/bamCoverage.nf'
-include { readsCount } from './modules/local/readsCount.nf'
+include { bamCoverage       } from './modules/local/bamCoverage.nf'
+include { readsCount        } from './modules/local/readsCount.nf'
 include { collectReadCounts } from './modules/local/collectReadCounts.nf'
 
 /*
@@ -22,8 +21,9 @@ include { collectReadCounts } from './modules/local/collectReadCounts.nf'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { MINIMAP2_ALIGN } from './modules/nf-core/minimap2/align/main.nf'
-include { SAMTOOLS_INDEX } from './modules/nf-core/samtools/index/main.nf'
+include { MINIMAP2_ALIGN        } from './modules/nf-core/minimap2/align/main.nf'
+include { SAMTOOLS_INDEX        } from './modules/nf-core/samtools/index/main.nf'
+include { DEEPTOOLS_BAMCOVERAGE } from './modules/nf-core/deeptools/bamcoverage/main.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,13 +118,6 @@ workflow{
     ch_gen_bai = SAMTOOLS_INDEX.out.bai
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
-    /*
-    samIndex(
-        ch_gen_bam.map{ meta, bam -> [meta, bam] }
-    )
-    ch_gen_bai = samIndex.out.bai
-    */
-    
     //
     // CHANNEL: Combine BAM and BAI
     //
@@ -148,9 +141,20 @@ workflow{
     // MODULE: create bedgraph of mapped fqs
     //
 
+    DEEPTOOLS_BAMCOVERAGE(
+        ch_gen_bam_bai.map{ meta, bam, bai -> [meta, bam, bai] },
+        [],
+        [],
+        [[],[]]
+    )
+    ch_versions = ch_versions.mix(DEEPTOOLS_BAMCOVERAGE.out.versions)
+
+
+    /*
     bamCoverage(
         ch_gen_bam_bai.map{ meta, bam, bai -> [meta, bam, bai] }
     )
+    */
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
