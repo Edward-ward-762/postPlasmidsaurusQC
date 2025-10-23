@@ -161,9 +161,11 @@ workflow{
     // MODULE: Collect software versions
     //
 
+    /*
     DUMP_SOFTWARE_VERSIONS (
         ch_versions.unique().collectFile()
     )
+    */
     
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

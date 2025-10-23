@@ -14,7 +14,7 @@ process readsCount {
     """
     echo "${readsPath.baseName}, \$(samtools import $readsPath | samtools view -c)" >> ${readsPath.baseName}_read_count.csv
 
-        cat <<-END_VERSIONS > versions.yml
+    cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         samtools: \$(samtools --version 2>&1)
     END_VERSIONS
