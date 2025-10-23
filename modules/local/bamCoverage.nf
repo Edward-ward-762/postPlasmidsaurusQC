@@ -1,10 +1,6 @@
 #!/usr/bin/env nextflow
 
-params.bamPath='bamPath_local_placeholder'
-
 process bamCoverage {
-    
-    publishDir 'output', mode: 'copy'
 
     input: 
         path bamPath
@@ -15,6 +11,6 @@ process bamCoverage {
     script:
     """
     samtools index $bamPath
-    bamCoverage -b $bamPath -of bedgraph -bs 10000 -o "${bamPath.baseName}_coverage.bedgraph"
+    bamCoverage -b $bamPath -of bedgraph -bs $params.bedgraph_bin_size -o "${bamPath.baseName}_coverage.bedgraph"
     """
 }

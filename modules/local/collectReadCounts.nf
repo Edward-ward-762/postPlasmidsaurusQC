@@ -2,8 +2,6 @@
 
 process collectReadCounts {
     
-    publishDir 'output', mode: 'copy'
-
     input:
         path input_files
 
