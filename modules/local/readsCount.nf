@@ -18,6 +18,5 @@ process readsCount {
     "${task.process}":
         samtools: \$(samtools --version 2>&1)
     END_VERSIONS
-
     """    
 }

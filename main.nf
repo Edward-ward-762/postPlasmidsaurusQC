@@ -11,7 +11,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { mapReads } from './modules/local/mapReads.nf'
 include { samIndex } from './modules/local/samIndex.nf'
 include { bamCoverage } from './modules/local/bamCoverage.nf'
 include { readsCount } from './modules/local/readsCount.nf'
@@ -24,6 +23,7 @@ include { collectReadCounts } from './modules/local/collectReadCounts.nf'
 */
 
 include { MINIMAP2_ALIGN } from './modules/nf-core/minimap2/align/main.nf'
+include { SAMTOOLS_INDEX } from './modules/nf-core/samtools/index/main.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -108,23 +108,23 @@ workflow{
     ch_gen_bam = MINIMAP2_ALIGN.out.bam
     ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions)
 
-    /*
-    mapReads(
-        ch_data.map{ meta, fq -> [meta, fq] },
-        ch_data.map{ meta, fq -> meta.genome_path }
-    )
-    ch_gen_bam = mapReads.out.bam
-    */
-
     //
     // MODULE: index genome mapped fqs
     //
 
+    SAMTOOLS_INDEX(
+        ch_gen_bam.map{ meta, bam -> [meta, bam] }
+    )
+    ch_gen_bai = SAMTOOLS_INDEX.out.bai
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+
+    /*
     samIndex(
         ch_gen_bam.map{ meta, bam -> [meta, bam] }
     )
     ch_gen_bai = samIndex.out.bai
-
+    */
+    
     //
     // CHANNEL: Combine BAM and BAI
     //
