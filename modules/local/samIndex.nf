@@ -3,10 +3,10 @@
 process samIndex {
 
     input:
-        path bamPath
+        tuple val(meta), path(bamPath)
 
     output:
-        path "${bamPath}.bai"
+        tuple val(meta), path("${bamPath}.bai"), emit: bai
     
     script:
     """

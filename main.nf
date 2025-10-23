@@ -24,32 +24,115 @@ include { collectReadCounts } from './modules/local/collectReadCounts.nf'
 */
 
 workflow{
-    genomePath_ch=Channel.fromPath(params.inputFile)
-                         .splitCsv(header: true)
-                         .map { item -> item.Genome }
 
-    readsPath_ch=Channel.fromPath(params.inputFile)
-                        .splitCsv(header: true)
-                        .map { item -> item.Reads }
+    //
+    // ****************************
+    //
+    // SECTION: Find number of reads in distinct fastqs
+    //
+    // ****************************
+    //
 
+    //
+    // CHANNEL: Find distinct fastq file paths
+    //
 
-    genomeName_ch=Channel.fromPath(params.inputFile)
-                         .splitCsv(header:true)
-                         .map { item -> item.Genome_Name }
+    ch_distinctReads = Channel.fromPath(params.inputFile)
+        .splitCsv(header: true)
+        .map { item -> item.fastq_path }
+        .flatten()
+        .distinct()
 
-    distinctReads_ch=Channel.fromPath(params.inputFile)
-                            .splitCsv(header: true)
-                            .map { item -> item.Reads }
-                            .flatten()
-                            .distinct()
+    //
+    // MODULE: Find number of reads in fastq
+    //
 
-    readsCount(distinctReads_ch)
+    readsCount(
+        ch_distinctReads
+    )
 
-    mappedBam_ch = mapReads(genomePath_ch,readsPath_ch,genomeName_ch)
+    //
+    // MODULE: Pool distinct reads into a single csv file
+    //
 
-    samIndex(mappedBam_ch)
+    collectReadCounts(
+        readsCount.out
+            .collect()
+    )
 
-    bamCoverage(mappedBam_ch)
+    //
+    // ****************************
+    //
+    // SECTION: Map all read in fqs to genome
+    //
+    // ****************************
+    //
 
-    collectReadCounts(readsCount.out.collect())
+    //
+    // CHANNEL: create input channel
+    //
+
+    ch_data = Channel.fromPath(params.inputFile)
+                .splitCsv(header: true)
+                .map { row ->
+                    [[id: row.sample_id, genome_path: row.genome_path], row.fastq_path]
+                }
+
+    //
+    // CHANNEL: create versions channel
+    //
+
+    ch_versions = Channel.empty()
+
+    //
+    // MODULE: map fq reads to genome
+    //
+
+    mapReads(
+        ch_data.map{ meta, fq -> [meta, fq] },
+        ch_data.map{ meta, fq -> meta.genome_path }
+    )
+    ch_gen_bam = mapReads.out.bam
+
+    //
+    // MODULE: index genome mapped fqs
+    //
+
+    samIndex(
+        ch_gen_bam.map{ meta, bam -> [meta, bam] }
+    )
+    ch_gen_bai = samIndex.out.bai
+
+    //
+    // CHANNEL: Combine BAM and BAI
+    //
+    ch_gen_bam_bai = ch_gen_bam
+        .join(ch_gen_bai, by: [0])
+        .map {
+            meta, bam, bai ->
+                if (bai) {
+                    [ meta, bam, bai ]
+                }
+        }
+
+    //
+    // CHANNEL: Filter empty bams
+    //
+    ch_gen_bam_bai = ch_gen_bam_bai.filter { row -> 
+            file(row[1]).size() >= params.min_bam_size 
+            }
+
+    //
+    // MODULE: create bedgraph of mapped fqs
+    //
+
+    bamCoverage(
+        ch_gen_bam_bai.map{ meta, bam, bai -> [meta, bam, bai] }
+    )
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    END
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 }

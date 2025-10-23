@@ -1,2 +1,2 @@
-﻿Genome,Genome_Name,Reads
-/path/to/genome.fa,genome_1,/path/to/reads.fastq
+﻿sample_id,fastq_path,genome_path
+sample_1,/path/to/reads.fastq,/path/to/genome.fa
