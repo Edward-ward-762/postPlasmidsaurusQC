@@ -26,6 +26,12 @@ include { collectReadCounts } from './modules/local/collectReadCounts.nf'
 workflow{
 
     //
+    // CHANNEL: create versions channel
+    //
+
+    ch_versions = Channel.empty()
+
+    //
     // ****************************
     //
     // SECTION: Find number of reads in distinct fastqs
@@ -50,14 +56,15 @@ workflow{
     readsCount(
         ch_distinctReads
     )
+    ch_fq_count = readsCount.out.count.collect()
+    ch_versions = ch_versions.mix(readsCount.out.versions)
 
     //
     // MODULE: Pool distinct reads into a single csv file
     //
 
     collectReadCounts(
-        readsCount.out
-            .collect()
+        ch_fq_count
     )
 
     //
@@ -77,12 +84,6 @@ workflow{
                 .map { row ->
                     [[id: row.sample_id, genome_path: row.genome_path], row.fastq_path]
                 }
-
-    //
-    // CHANNEL: create versions channel
-    //
-
-    ch_versions = Channel.empty()
 
     //
     // MODULE: map fq reads to genome
