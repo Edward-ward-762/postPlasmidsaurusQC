@@ -69,6 +69,22 @@ workflow{
     //
 
     //
+    // CHANNEL: create channel to replace those below
+    //
+
+    ch_data = Channel.fromPath(params.inputFile)
+                .splitCsv(header: true)
+                .map { row ->
+                    [[id: row.sample_id, genome_path: row.genome_path], row.fastq_path]
+                }
+
+    //
+    // CHANNEL: create versions channel
+    //
+
+    ch_versions = Channel.empty()
+
+    //
     // CHANNEL: create genomePath channel from genome file path
     //
 
