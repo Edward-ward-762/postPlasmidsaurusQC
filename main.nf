@@ -39,7 +39,7 @@ workflow{
 
     ch_distinctReads = Channel.fromPath(params.inputFile)
         .splitCsv(header: true)
-        .map { item -> item.Reads }
+        .map { item -> item.fastq_path }
         .flatten()
         .distinct()
 
