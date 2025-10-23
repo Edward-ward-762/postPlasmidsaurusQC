@@ -1,7 +1,8 @@
 #!/usr/bin/env nextflow
 
 process collectReadCounts {
-    
+    label 'process_single'
+
     input:
         path input_files
 
