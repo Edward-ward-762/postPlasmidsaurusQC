@@ -69,7 +69,7 @@ workflow{
     //
 
     //
-    // CHANNEL: create channel to replace those below
+    // CHANNEL: create input channel
     //
 
     ch_data = Channel.fromPath(params.inputFile)
@@ -85,46 +85,50 @@ workflow{
     ch_versions = Channel.empty()
 
     //
-    // CHANNEL: create genomePath channel from genome file path
-    //
-
-    genomePath_ch=Channel.fromPath(params.inputFile)
-                         .splitCsv(header: true)
-                         .map { item -> item.Genome }
-
-    //
-    // CHANNEL: create readsPath channel from fq file path
-    //
-
-    readsPath_ch=Channel.fromPath(params.inputFile)
-                        .splitCsv(header: true)
-                        .map { item -> item.Reads }
-
-    //
-    // CHANNEL: create genomeName channel from input custom genome name
-    //
-
-    genomeName_ch=Channel.fromPath(params.inputFile)
-                         .splitCsv(header:true)
-                         .map { item -> item.Genome_Name }
-
-    //
     // MODULE: map fq reads to genome
     //
 
-    mappedBam_ch = mapReads(genomePath_ch,readsPath_ch,genomeName_ch)
+    mapReads(
+        ch_data.map{ meta, fq -> [meta, fq] },
+        ch_data.map{ meta, fq -> meta.genome_path }
+    )
+    ch_gen_bam = mapReads.out.bam
 
     //
     // MODULE: index genome mapped fqs
     //
 
-    samIndex(mappedBam_ch)
+    samIndex(
+        ch_gen_bam.map{ meta, bam -> [meta, bam] }
+    )
+    ch_gen_bai = samIndex.out.bai
+
+    //
+    // CHANNEL: Combine BAM and BAI
+    //
+    ch_gen_bam_bai = ch_gen_bam
+        .join(ch_gen_bai, by: [0])
+        .map {
+            meta, bam, bai ->
+                if (bai) {
+                    [ meta, bam, bai ]
+                }
+        }
+
+    //
+    // CHANNEL: Filter empty bams
+    //
+    ch_gen_bam_bai = ch_gen_bam_bai.filter { row -> 
+            file(row[1]).size() >= params.min_bam_size 
+            }
 
     //
     // MODULE: create bedgraph of mapped fqs
     //
 
-    bamCoverage(mappedBam_ch)
+    bamCoverage(
+        ch_gen_bam_bai.map{ meta, bam, bai -> [meta, bam, bai] }
+    )
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -3,14 +3,13 @@
 process bamCoverage {
 
     input: 
-        path bamPath
+        tuple val(meta), path(bamPath), path(baiPath)
 
     output:
-        path "${bamPath.baseName}_coverage.bedgraph"
+        tuple val(meta), path("${bamPath.baseName}_coverage.bedgraph"), emit: bedgraph
     
     script:
     """
-    samtools index $bamPath
     bamCoverage -b $bamPath -of bedgraph -bs $params.bedgraph_bin_size -o "${bamPath.baseName}_coverage.bedgraph"
     """
 }
