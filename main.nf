@@ -65,7 +65,6 @@ workflow{
         ch_distinctReads
     )
     ch_fq_count = readsCount.out.count.collect()
-    ch_versions = ch_versions.mix(readsCount.out.versions)
 
     //
     // MODULE: Pool distinct reads into a single csv file
@@ -161,11 +160,10 @@ workflow{
     // MODULE: Collect software versions
     //
 
-    /*
     DUMP_SOFTWARE_VERSIONS (
         ch_versions.unique().collectFile()
     )
-    */
+
     
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
