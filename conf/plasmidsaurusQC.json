@@ -1,0 +1,54 @@
+{
+    "inputs": [
+        {
+            "name": "Sample options",
+            "description": "Parameters relating to the sample being analysed.",
+            "advanced": false,
+            "params": {
+                "samplesheet": {
+                    "name": "Samples",
+                    "description": "The samples to process.",
+                    "required": true,
+                    "type": "csv",
+                    "takes_samples":true,
+                    "columns": [
+                        {
+                            "name": "sample_name",
+                            "type": "string",
+                            "from_sample": "name",
+                            "required": true,
+                            "render": false
+                        },
+                        {
+                            "name": "fastq_path",
+                            "type": "data",
+                            "from_sample": 1,
+                            "required": true,
+                            "render": true
+                        },
+                        {
+                            "name": "genome_path",
+                            "type": "data",
+                            "required": true,
+                            "render": true
+                        }
+                    ]
+                }           
+            }
+        }
+    ],
+    "outputs": [
+        {
+            "name": "Read counts",
+            "description": "Number of reads in fastqs.",
+            "filetype": "csv",
+            "process": "collectReadCounts"
+        },
+        {
+            "name": "Genome coverage",
+            "description": "Coverage of mapped genome.",
+            "filetype": "coverage",
+            "process": "DEEPTOOLS_BAMCOVERAGE"
+        }
+    ]
+}
