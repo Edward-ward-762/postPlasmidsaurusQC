@@ -13,7 +13,7 @@
                     "takes_samples":true,
                     "columns": [
                         {
-                            "name": "sample_name",
+                            "name": "sample_id",
                             "type": "string",
                             "from_sample": "name",
                             "required": true,
