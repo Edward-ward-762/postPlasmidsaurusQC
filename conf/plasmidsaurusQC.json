@@ -22,7 +22,6 @@
                         {
                             "name": "fastq_path",
                             "type": "data",
-                            "from_sample": 1,
                             "required": true,
                             "render": true
                         },
