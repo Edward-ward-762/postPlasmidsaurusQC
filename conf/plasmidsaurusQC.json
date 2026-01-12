@@ -17,7 +17,7 @@
                             "type": "string",
                             "from_sample": "name",
                             "required": true,
-                            "render": false
+                            "render": true
                         },
                         {
                             "name": "fastq_path",
@@ -34,14 +34,6 @@
                     ]
                 }           
             }
-        }
-    ],
-    "outputs": [
-        {
-            "name": "Read counts",
-            "description": "Number of reads in fastqs.",
-            "filetype": "csv",
-            "process": "collectReadCounts"
         }
     ]
 }
