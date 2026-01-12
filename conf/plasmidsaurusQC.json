@@ -3,21 +3,21 @@
         {
             "name": "Sample options",
             "description": "Parameters relating to the sample being analysed.",
-            "advanced": false,
+             "advanced": false,
             "params": {
                 "inputFile": {
                     "name": "Samples",
                     "description": "The samples to process.",
                     "required": true,
                     "type": "csv",
-                    "takes_samples":true,
+                    "takes_samples": true,
                     "columns": [
                         {
                             "name": "sample_id",
                             "type": "string",
                             "from_sample": "name",
                             "required": true,
-                            "render": true
+                            "render": false
                         },
                         {
                             "name": "fastq_path",
@@ -34,14 +34,6 @@
                     ]
                 }           
             }
-        }
-    ],
-    "outputs": [
-        {
-            "name": "Read count",
-            "description": "Number of reads in fastq files.",
-            "filetype": "csv",
-            "process": "collectReadCounts"
         }
     ]
 }
