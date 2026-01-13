@@ -3,7 +3,7 @@
         {
             "name": "Sample options",
             "description": "Parameters relating to the sample being analysed.",
-             "advanced": false,
+            "advanced": false,
             "params": {
                 "inputFile": {
                     "name": "Samples",
@@ -33,6 +33,19 @@
                         }
                     ]
                 }           
+            }
+        },
+        {
+            "name": "Pipeline parameters",
+            "description": "General options and configuration for the pipeline.",
+            "advanced": true,
+            "params": {
+                "outdir": {
+                    "name": "Output directory",
+                    "description": "Output directory name.",
+                    "type": "string",
+                    "default": "plasmidsaurusQC"
+                }
             }
         }
     ]
